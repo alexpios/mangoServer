@@ -1,3 +1,14 @@
 <resources>
-    <string name="app_name">KOMILFOServer</string>
+    <string name="app_name">Komilfo Server</string>
+    <string name="slogan">Мы — команда профессионалов, которая работает над тем, чтобы сделать фитнес образом жизни каждого!</string>
+    <string name="signUp">Регистрация</string>
+    <string name="login">Войти</string>
+    <string name="title_activity_home">Home</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+    <string name="total">Общая стоимость:  </string>
 </resources>
