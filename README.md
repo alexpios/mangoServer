@@ -1,6 +1,6 @@
 # mangoServer
 
 
-Server for work with main project
+Server for a work with main project
 
 #kek
