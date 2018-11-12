@@ -65,7 +65,7 @@
         app:shadowEnabled="true"
         app:shadowHeight="5dp"
         app:cornerRadius="4dp"
-        app:buttonColor="@color/btnSignActive"
+      app:fButtonColor="@color/btnSignActive"
         android:layout_height="wrap_content" />
 
 </RelativeLayout>

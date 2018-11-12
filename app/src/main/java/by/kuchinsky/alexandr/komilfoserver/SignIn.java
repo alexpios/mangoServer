@@ -23,7 +23,7 @@ import by.kuchinsky.alexandr.komilfoserver.Model.User;
 import info.hoang8f.widget.FButton;
 
 public class SignIn extends AppCompatActivity {
-Button sign;
+FButton sign;
 EditText ePhone, ePass;
 
 FirebaseDatabase db;
@@ -41,21 +41,13 @@ DatabaseReference users;
         //init Firebase
 
         db= FirebaseDatabase.getInstance();
-       users =  db.getReference("Users");
+       users =  db.getReference("User");
         sign.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 signInUser(ePhone.getText().toString(), ePass.getText().toString());
             }
         });
-
-
-
-
-
-
-
-
 
 
     }

@@ -52,7 +52,6 @@
             <!--app:fButtonColor="@color/btnSignUp"-->
             <!--android:layout_height="wrap_content" />-->
 
-
         <info.hoang8f.widget.FButton
             android:id="@+id/btnLogin"
             android:layout_width="match_parent"
@@ -61,11 +60,20 @@
             android:layout_weight="1"
             android:text="@string/login"
             android:textColor="@android:color/white"
-            app:buttonColor="@color/btnSignActive"
-            app:cornerRadius="4dp"
-            app:shadowColor="@android:color/black"
+         app:fButtonColor="@color/btnSignActive"
+            app:cornerRadius="5dp"
+            android:shadowColor="@android:color/black"
             app:shadowEnabled="true"
-            app:shadowHeight="5dp" />
+            app:shadowHeight="3dp"
+
+
+            />
+
+
+
+
+
+
 
 
 
