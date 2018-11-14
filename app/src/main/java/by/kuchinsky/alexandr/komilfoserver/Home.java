@@ -41,6 +41,7 @@ import com.squareup.picasso.Picasso;
 import java.util.UUID;
 
 import by.kuchinsky.alexandr.komilfoserver.Common.Common;
+import by.kuchinsky.alexandr.komilfoserver.Interface.ItemClickListener;
 import by.kuchinsky.alexandr.komilfoserver.Model.Category;
 import by.kuchinsky.alexandr.komilfoserver.ViewHolder.MenuViewHolder;
 import info.hoang8f.widget.FButton;
@@ -65,7 +66,7 @@ TextView txtFullName;
     Category newCategory;
 
     Uri saveUri;
-    private final int PICK_IMAGE_REQUEST=71;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -222,7 +223,7 @@ TextView txtFullName;
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK &&
+        if (requestCode == Common.PICK_IMAGE_REQUEST && resultCode == RESULT_OK &&
                 data != null && data.getData() != null){
             saveUri = data.getData();
             btnSelect.setText("Изображение выбрано!");
@@ -235,7 +236,7 @@ TextView txtFullName;
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Выберите изображение"), PICK_IMAGE_REQUEST);
+        startActivityForResult(Intent.createChooser(intent, "Выберите изображение"), Common.PICK_IMAGE_REQUEST);
     }
 
     private void loadMenu() {
@@ -251,6 +252,17 @@ TextView txtFullName;
             protected void populateViewHolder(MenuViewHolder viewHolder, Category model, int position) {
                 viewHolder.txtMenuName.setText(model.getName());
                 Picasso.with(Home.this).load(model.getImage()).into(viewHolder.imageView);
+
+                viewHolder.setItemClickListener(new ItemClickListener() {
+                    @Override
+                    public void onClick(View view, int position, boolean isLongClick) {
+//otpravka category id and start new activity
+                        Intent SErviceLIst = new Intent(Home.this, ServiceList.class);
+                        SErviceLIst.putExtra("CategoryId", adapter.getRef(position).getKey());
+                        startActivity(SErviceLIst);
+
+                    }
+                });
             }
         };
         adapter.notifyDataSetChanged(); // refresh data if data changed
@@ -301,5 +313,136 @@ TextView txtFullName;
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+
+    //Update/delete category
+
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+
+       if(item.getTitle().equals(Common.UPDATE)){
+           showUpdateDialog(adapter.getRef(item.getOrder()).getKey(),adapter.getItem(item.getOrder()));
+       }
+        else  if(item.getTitle().equals(Common.DELETE)){
+           deleteCategory(adapter.getRef(item.getOrder()).getKey());
+       }
+
+
+        return super.onContextItemSelected(item);
+    }
+
+    private void deleteCategory(String key) {
+        categories.child(key).removeValue();
+        Toast.makeText(this, "Категория успешно удалена!", Toast.LENGTH_SHORT).show();
+    }
+
+    private void showUpdateDialog(final String key, final Category item) {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(Home.this);
+        alertDialog.setTitle("Редактировать категорию:");
+        alertDialog.setMessage("Пожалуйста, введите информацию.");
+
+
+        LayoutInflater inflater = this.getLayoutInflater();
+        View add_menu_layout = inflater.inflate(R.layout.add_new_menu_layout,null);
+
+        edtName= add_menu_layout.findViewById(R.id.edtName);
+        btnSelect=add_menu_layout.findViewById(R.id.btnSelect);
+        btnUpload=add_menu_layout.findViewById(R.id.btnUpload);
+
+        //set name po defoltu
+        edtName.setText(item.getName());
+
+
+
+
+        //event for butons
+
+        btnSelect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                chooseImage(); //select user picture from phone and save uri this image
+            }
+        });
+
+        btnUpload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               changeImage(item);
+            }
+        });
+
+        alertDialog.setView(add_menu_layout);
+        alertDialog.setIcon(R.drawable.ic_status);
+
+        //Set button
+        alertDialog.setPositiveButton("Да", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                //update Information
+            item.setName(edtName.getText().toString());
+            categories.child(key).setValue(item);
+            }
+        });
+        alertDialog.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        alertDialog.show();
+
+
+    }
+
+    private void changeImage(final Category item) {
+
+
+
+            if (saveUri != null){
+                final ProgressDialog pd = new ProgressDialog(this);
+                pd.setMessage("Загружаем..");
+                pd.show();
+
+                String imageName = UUID.randomUUID().toString();
+                final StorageReference imageFolder = storageReference.child("images/"+imageName);
+                imageFolder.putFile(saveUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        pd.dismiss();
+                        Toast.makeText(Home.this, "Загружено", Toast.LENGTH_SHORT).show();
+                        imageFolder.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                //set new znachenie foe new category if image upload succ and we can get link for downloading
+
+                                item.setImage(uri.toString());
+                            }
+                        });
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        pd.dismiss();
+                        Toast.makeText(Home.this, "Error: "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                        double progress = (100.0 * taskSnapshot.getBytesTransferred() /
+                                taskSnapshot.getTotalByteCount());
+                        pd.setMessage("Зaгружено: "+progress+"%");
+                    }
+                });
+
+
+
+
+
+
+        }
     }
 }

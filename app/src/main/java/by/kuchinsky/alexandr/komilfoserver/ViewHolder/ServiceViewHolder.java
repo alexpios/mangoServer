@@ -3,7 +3,6 @@ package by.kuchinsky.alexandr.komilfoserver.ViewHolder;
 import android.support.v7.widget.RecyclerView;
 import android.view.ContextMenu;
 import android.view.View;
-import android.view.View.OnCreateContextMenuListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -11,16 +10,16 @@ import by.kuchinsky.alexandr.komilfoserver.Common.Common;
 import by.kuchinsky.alexandr.komilfoserver.Interface.ItemClickListener;
 import by.kuchinsky.alexandr.komilfoserver.R;
 
-public class MenuViewHolder extends RecyclerView.ViewHolder
-        implements View.OnClickListener, OnCreateContextMenuListener {
-    public TextView txtMenuName;
-    public ImageView imageView;
+public class ServiceViewHolder extends RecyclerView.ViewHolder
+        implements View.OnClickListener, View.OnCreateContextMenuListener {
+    public TextView service_name;
+    public ImageView service_image;
     private ItemClickListener itemClickListener;
-    public MenuViewHolder(View itemView) {
+    public ServiceViewHolder(View itemView) {
         super(itemView);
 
-        txtMenuName = (TextView)itemView.findViewById(R.id.menu_name);
-        imageView=(ImageView)itemView.findViewById(R.id.menu_image);
+        service_name = (TextView)itemView.findViewById(R.id.service_name);
+        service_image=(ImageView)itemView.findViewById(R.id.service_image);
 
         itemView.setOnCreateContextMenuListener(this);
         itemView.setOnClickListener(this);

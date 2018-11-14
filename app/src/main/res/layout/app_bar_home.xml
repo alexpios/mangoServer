@@ -29,7 +29,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         app:backgroundTint="@android:color/white"
-        app:srcCompat="@drawable/cart_shop"
+        app:srcCompat="@drawable/ic_add"
         tools:ignore="VectorDrawableCompat" />
 
 </android.support.design.widget.CoordinatorLayout>
