@@ -43,6 +43,8 @@ import java.util.UUID;
 import by.kuchinsky.alexandr.komilfoserver.Common.Common;
 import by.kuchinsky.alexandr.komilfoserver.Interface.ItemClickListener;
 import by.kuchinsky.alexandr.komilfoserver.Model.Category;
+import by.kuchinsky.alexandr.komilfoserver.Model.Order;
+import by.kuchinsky.alexandr.komilfoserver.Service.ListenOrder;
 import by.kuchinsky.alexandr.komilfoserver.ViewHolder.MenuViewHolder;
 import info.hoang8f.widget.FButton;
 
@@ -115,6 +117,11 @@ TextView txtFullName;
         recycler_menu.setLayoutManager(layoutManager);
 
         loadMenu();
+
+        //vizivaem service
+
+        Intent service = new Intent(Home.this, ListenOrder.class);
+        startService(service);
 
     }
 
@@ -308,7 +315,10 @@ TextView txtFullName;
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-
+            if (id == R.id.orders){
+                Intent orders = new Intent(Home.this, OrderStatus.class);
+                startActivity(orders);
+            }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

@@ -2,7 +2,7 @@
     <string name="app_name">Komilfo Server</string>
     <string name="slogan">Мы — команда профессионалов, которая работает над тем, чтобы сделать фитнес образом жизни каждого!</string>
     <string name="signUp">Регистрация</string>
-    <string name="login">Войти</string>
+    <string name="login">Войти c правами администратора</string>
     <string name="title_activity_home">Home</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

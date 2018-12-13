@@ -14,6 +14,7 @@ import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -96,7 +97,7 @@ public class ServiceList extends AppCompatActivity {
         });
         if (getIntent() != null){
             categoryId = getIntent().getStringExtra("CategoryId");
-            if (categoryId.isEmpty()){
+            if (!categoryId.isEmpty()){
                 loadListFood(categoryId);
             }
         }
@@ -146,11 +147,11 @@ public class ServiceList extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                //just create a new category
+                //just create a new service
                 if (newService != null){
                     servicelist.push().setValue(newService);
 
-                    Snackbar.make(rootLayout, "Новая категория "+newService.getName()+" добавлена! ", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(rootLayout, "Сервис: "+newService.getName()+" добавлен! ", Snackbar.LENGTH_SHORT).show();
                 }
             }
         });
@@ -260,5 +261,146 @@ public class ServiceList extends AppCompatActivity {
         };
 adapter.notifyDataSetChanged();
 recyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+
+        if(item.getTitle().equals(Common.UPDATE)){
+            showUpdateServiceDialog(adapter.getRef(item.getOrder()).getKey(), adapter.getItem(item.getOrder()));
+
+        } else if (item.getTitle().equals(Common.DELETE)){
+            deleteService(adapter.getRef(item.getOrder()).getKey());
+        }
+
+        return super.onContextItemSelected(item);
+
+    }
+
+    private void deleteService(String key) {
+        servicelist.child(key).removeValue();
+    }
+
+    private void showUpdateServiceDialog(final String key, final Service item) {
+
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(ServiceList.this);
+        alertDialog.setTitle("Редактирование");
+        alertDialog.setMessage("Пожалуйста, введите полную информацию.");
+
+
+        LayoutInflater inflater = this.getLayoutInflater();
+        View add_menu_layout = inflater.inflate(R.layout.add_new_service,null);
+
+        edtName= add_menu_layout.findViewById(R.id.edtName);
+        edtDescription= add_menu_layout.findViewById(R.id.edtDescription);
+        edtPrice= add_menu_layout.findViewById(R.id.edtPrice);
+        edtDiscount= add_menu_layout.findViewById(R.id.edtDiscount);
+
+        //set a default item for the service
+        edtName.setText(item.getName());
+        edtDescription.setText(item.getDescription());
+        edtPrice.setText(item.getPrice());
+        edtDiscount.setText(item.getDiscount());
+
+
+        btnSelect=add_menu_layout.findViewById(R.id.btnSelect);
+        btnUpload=add_menu_layout.findViewById(R.id.btnUpload);
+
+        //event for butons
+
+        btnSelect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                chooseImage();
+            }
+        });
+
+        btnUpload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeImage(item);
+            }
+        });
+
+        alertDialog.setView(add_menu_layout);
+        alertDialog.setIcon(R.drawable.ic_status);
+
+        //Set button
+        alertDialog.setPositiveButton("Да", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                //just create a new service
+             //   if (newService != null){
+
+                    item.setName(edtName.getText().toString());
+                    item.setPrice(edtPrice.getText().toString());
+                    item.setDiscount(edtDiscount.getText().toString());
+                    item.setDescription(edtDescription.getText().toString());
+
+                    servicelist.child(key).setValue(item);
+
+                    Snackbar.make(rootLayout, "Сервис: "+newService.getName()+" изменён! ", Snackbar.LENGTH_SHORT).show();
+              //  }
+            }
+        });
+        alertDialog.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        alertDialog.show();
+
+
+    }
+
+    private void changeImage(final Service item) {
+
+
+
+        if (saveUri != null){
+            final ProgressDialog pd = new ProgressDialog(this);
+            pd.setMessage("Загружаем..");
+            pd.show();
+
+            String imageName = UUID.randomUUID().toString();
+            final StorageReference imageFolder = storageReference.child("images/"+imageName);
+            imageFolder.putFile(saveUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    pd.dismiss();
+                    Toast.makeText(ServiceList.this, "Загружено", Toast.LENGTH_SHORT).show();
+                    imageFolder.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            //set new znachenie foe new category if image upload succ and we can get link for downloading
+
+                            item.setImage(uri.toString());
+                        }
+                    });
+
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    pd.dismiss();
+                    Toast.makeText(ServiceList.this, "Error: "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                    double progress = (100.0 * taskSnapshot.getBytesTransferred() /
+                            taskSnapshot.getTotalByteCount());
+                    pd.setMessage("Зaгружено: "+progress+"%");
+                }
+            });
+
+
+
+
+
+
+        }
     }
 }
